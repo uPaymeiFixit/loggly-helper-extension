@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "Loggly Formatter",
+  "version": "0.1",
+
+  "description": "Parses stringified JSON in Loggly",
+
+  "icons": {
+    "48": "loggly-icon.png"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["*://spectra.loggly.com/*"],
+      "js": ["main.js"]
+    }
+  ]
+}
