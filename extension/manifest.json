@@ -11,7 +11,7 @@
 
   "content_scripts": [
     {
-      "matches": ["*://spectra.loggly.com/*"],
+      "matches": ["https://spectra.loggly.com/search"],
       "js": ["main.js"]
     }
   ]
