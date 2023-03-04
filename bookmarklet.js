@@ -4,14 +4,13 @@ javascript: (() => {
     if (typeof value === "number" || typeof value === "boolean") type = "num";
     return `<span lg-term-highlight-node-value="::node" lg-view-code-marker="::node" uib-tooltip="Add to Search" tooltip-placement="top" tooltip-trigger="focus" tooltip-append-to-body="false" tooltip-enable="isRowTooltipOpen" class="node-value node-hover lg-pretty-json"><span class="json-${type}">${value}</span></span>`;
   };
-  const wrapNode = (node) => `${node}`;
   const wrapKey = (key) => `<span style="color:#AAAAAA;">${key}</span>`;
 
   function formatObject(obj, depth = 0) {
     let o = "";
     if (typeof obj === "object") {
       for (const key in obj) {
-        o += wrapNode(`\n${"  ".repeat(depth)}${wrapKey(key)}: ${formatObject(obj[key], depth + 1)}`);
+        o += `\n${"  ".repeat(depth)}${wrapKey(key)}: ${formatObject(obj[key], depth + 1)}`;
       }
       return o;
     }
