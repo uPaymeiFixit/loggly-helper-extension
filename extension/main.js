@@ -25,9 +25,11 @@ function deepParse(obj) {
   return obj;
 }
 
-function scanAndFormat() {
+function scanAndFormat(e) {
   // Pause the observer while we update the DOM so we don't trigger it
   observer.disconnect();
+
+  // console.log("FORMATTING", e);
 
   // Format `raw message` contents
   document.querySelectorAll("div[lg-lazy-show='rawMessageExpanded']").forEach((element) => {
@@ -48,9 +50,12 @@ function scanAndFormat() {
   });
 
   // Resume the observer
-  observer.observe(document.body, { attributes: true, childList: true, subtree: true });
+  startObserver();
 }
 
 // Create an observer to detect changes to the DOM (unfolding, new logs, etc)
 const observer = new MutationObserver(scanAndFormat);
-observer.observe(document.body, { attributes: true, childList: true, subtree: true });
+const startObserver = () => observer.observe(document.body, { attributes: true, childList: true, subtree: true });
+
+// Loggly gets a lot of updates, only listen when we click
+document.body.addEventListener("click", startObserver, true);
