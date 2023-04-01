@@ -1,11 +1,58 @@
+// Apply Loggly-specific formatting to object values
 const wrapValue = (value) => {
   let type = "str";
   if (typeof value === "number" || typeof value === "boolean") type = "num";
   return `<span lg-term-highlight-node-value="::node" lg-view-code-marker="::node" uib-tooltip="Add to Search" tooltip-placement="top" tooltip-trigger="focus" tooltip-append-to-body="false" tooltip-enable="isRowTooltipOpen" class="node-value node-hover lg-pretty-json"><span class="json-${type}">${value}</span></span>`;
 };
+// Apply color to keys of an object
 const wrapKey = (key) => `<span style="color:#AAAAAA;">${key}</span>`;
 
-// Apply color, new lines, and spacing to a parsed object
+// Create an observer to detect changes to the DOM (unfolding, new logs, etc)
+const observer = new MutationObserver(scanAndFormat);
+const startObserver = () =>
+  observer.observe(document.getElementsByName("events")[0], { attributes: true, childList: true, subtree: true });
+startObserver();
+
+// Loggly gets a lot of updates, only listen when we click - I think we've solved this problem
+// document.body.addEventListener("click", startObserver, true);
+
+/**
+ * Loop through all raw logs and indexed string values and attempt to format them
+ */
+function scanAndFormat(mutatedElements) {
+  // Pause the observer while we update the DOM so we don't trigger it
+  observer.disconnect();
+
+  // Format `raw message` contents
+  document.querySelectorAll("div[lg-lazy-show='rawMessageExpanded']").forEach(formatElement);
+
+  // Format all other string values
+  document.querySelectorAll(".json-str").forEach(formatElement);
+
+  // Resume the observer
+  startObserver();
+}
+
+/**
+ * Given a single element, attempt to parse it and update the DOM if successful
+ */
+function formatElement(element) {
+  // Remove double quotes from highlight tag
+  const safe_element = element.innerHTML.replaceAll('<span class="highlight">', "<span class='highlight'>");
+
+  // Non-objects will throw when parsed, so use a try/catch
+  try {
+    const p = deepParse(safe_element);
+    // It's possible the object was already parsed, no need to update the DOM
+    if (p === safe_element) return;
+
+    element.innerHTML = formatObject(p);
+  } catch (error) {}
+}
+
+/**
+ * Apply color, new lines, and spacing to a parsed object
+ */
 function formatObject(obj, depth = 0) {
   let o = "";
   if (typeof obj === "object") {
@@ -17,45 +64,12 @@ function formatObject(obj, depth = 0) {
   return wrapValue(obj);
 }
 
-// Recursively parse an object whose values may also be stringified json
+/**
+ * Recursively parse an object whose values may also be stringified json
+ */
 function deepParse(obj) {
   try {
     return JSON.parse(obj, (key, value) => deepParse(value));
   } catch (error) {}
   return obj;
 }
-
-function scanAndFormat(e) {
-  // Pause the observer while we update the DOM so we don't trigger it
-  observer.disconnect();
-
-  // console.log("FORMATTING", e);
-
-  // Format `raw message` contents
-  document.querySelectorAll("div[lg-lazy-show='rawMessageExpanded']").forEach((element) => {
-    const p = deepParse(element.innerHTML.replaceAll('<span class="highlight">', "<span class='highlight'>"));
-    element.innerHTML = formatObject(p);
-  });
-
-  // Format all other string values
-  document.querySelectorAll(".json-str").forEach((element) => {
-    const safe_element = element.innerHTML.replaceAll('<span class="highlight">', "<span class='highlight'>");
-
-    try {
-      const p = deepParse(safe_element);
-      if (p === safe_element) return;
-
-      element.innerHTML = formatObject(p);
-    } catch (error) {}
-  });
-
-  // Resume the observer
-  startObserver();
-}
-
-// Create an observer to detect changes to the DOM (unfolding, new logs, etc)
-const observer = new MutationObserver(scanAndFormat);
-const startObserver = () => observer.observe(document.body, { attributes: true, childList: true, subtree: true });
-
-// Loggly gets a lot of updates, only listen when we click
-document.body.addEventListener("click", startObserver, true);
