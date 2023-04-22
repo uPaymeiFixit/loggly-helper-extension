@@ -37,6 +37,20 @@ function scanAndFormat(mutatedElements) {
  * Given a single element, attempt to parse it and update the DOM if successful
  */
 function formatElement(element) {
+  /**
+   * Sometimes when you search for something like "\"level\":\"verbose\"", the
+   * logs will contain empty highlight tags, and &quot; characters. We will
+   * filter them out here.
+   */
+  const element_html = element.innerHTML
+    .replaceAll('<span class="highlight"></span>', "")
+    .replaceAll("&amp;", "&")
+    .replaceAll("&quot;", '"');
+
+  if (element_html !== element.innerHTML) {
+    element.innerHTML = element_html;
+  }
+
   // Remove double quotes from highlight tag
   const safe_element = element.innerHTML.replaceAll('<span class="highlight">', "<span class='highlight'>");
 
