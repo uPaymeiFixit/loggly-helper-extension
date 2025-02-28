@@ -8,3 +8,4 @@ For users weary of or unable to install an extension, a bookmarklet.js file is p
 
 ![2023-03-03 17 26 31](https://user-images.githubusercontent.com/1683528/222868210-7806d390-61e0-44c6-864a-86b70f3c1641.gif)
 
+![Screenshot 2025-02-28 at 12 25 18](https://github.com/user-attachments/assets/ae8fc056-5c5b-410a-9ac9-b7578711d254)
