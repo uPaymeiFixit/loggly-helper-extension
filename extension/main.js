@@ -58,10 +58,30 @@ function formatElement(element) {
   try {
     const p = deepParse(safe_element);
     // It's possible the object was already parsed, no need to update the DOM
-    if (p === safe_element) return;
+    if (p === safe_element) return colorize(element);
 
     element.innerHTML = formatObject(p);
   } catch (error) {}
+  colorize(element);
+}
+
+/**
+ * Apply limited ANSI coloring to text that supports it
+ */
+function colorize(element) {
+  element.innerHTML = element.innerHTML
+    .replaceAll("[30m", "<span style='color:black;'>")
+    .replaceAll("[31m", "<span style='color:red;'>")
+    .replaceAll("[32m", "<span style='color:green;'>")
+    .replaceAll("[33m", "<span style='color:yellow;'>")
+    .replaceAll("[34m", "<span style='color:blue;'>")
+    .replaceAll("[35m", "<span style='color:purple;'>")
+    .replaceAll("[36m", "<span style='color:cyan;'>")
+    .replaceAll("[37m", "<span style='color:white;'>")
+
+    .replaceAll("[22m", "</span>")
+    .replaceAll("[39m", "</span>")
+    .replaceAll("[2m", "<span style='color:gray;'>"); // dim
 }
 
 /**
